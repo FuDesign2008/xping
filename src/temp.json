@@ -1,0 +1,75 @@
+{
+  "queryid": "62ec1a0ec0f20064",
+  "tuid": "u2671177_0",
+  "placement": {
+    "basic": {
+      "cname": "cnzzzcpr",
+      "conBackEnv": 1,
+      "flowType": 1,
+      "mediumType": 1,
+      "rspFormat": 1,
+      "sellType": 2,
+      "sspId": 1,
+      "tuId": 9223372032562480000,
+      "userId": 1481250
+    },
+    "container": {
+      "anchoredType": 1,
+      "floated": {},
+      "height": 40,
+      "sizeType": 1,
+      "width": 1024
+    },
+    "fillstyle": {
+      "backgroundColor": "#ffffff",
+      "elements": [
+        5
+      ],
+      "flush": 0,
+      "layout": [
+        2
+      ],
+      "lu": {
+        "borderWidth": 0,
+        "number": 0
+      },
+      "opacity": 100,
+      "search": {},
+      "styleType": 2,
+      "txt": {
+        "align": 1,
+        "bborder": 0,
+        "cbackground": "#ffffff",
+        "cborder": "#ffffff",
+        "cflush": "#e10900",
+        "ctitle": "#0000ff",
+        "fontName": "宋体",
+        "fontSize": 12,
+        "number": 4
+      },
+      "video": {}
+    },
+    "userdefine": "|cpro_cpro_lu=0,#ffffff,#000000,微软雅黑,#ffffff|cpro_layout_filter=tabcloud,image|cpro_template=baiduTlinkInlay|cpro_version=2.0",
+    "complement_type": 3,
+    "update": "1479880732_1479880732"
+  },
+  "extends": {
+    "ssph": 40,
+    "sspw": 1024
+  },
+  "pdb_deliv": {
+    "deliv_id": "0",
+    "deliv_des": {},
+    "brandad": 0
+  },
+  "order_deliv": {
+    "deliv_id": "0",
+    "demand_id": "0"
+  },
+  "rtb_deliv": {
+    "deliv_id": "0",
+    "demand_id": "2671177"
+  },
+  "media_protect": "",
+  "adExpire": 1500024514096
+}

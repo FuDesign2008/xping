@@ -1,0 +1,26 @@
+{
+  "name": "xping",
+  "version": "1.0.0",
+  "description": "extend ping",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FuDesign2008/xping.git"
+  },
+  "keywords": [
+    "ping"
+  ],
+  "author": "fudesign2008",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FuDesign2008/xping/issues"
+  },
+  "homepage": "https://github.com/FuDesign2008/xping#readme",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "phantom": "^4.0.5"
+  }
+}
