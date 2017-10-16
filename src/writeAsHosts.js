@@ -20,7 +20,7 @@ module.exports = (data, directoryPath) => {
 
   _.forEach(data.pings, (ipList, domainName) => {
     const ip = _.first(ipList)
-    lines.push(`${domainName} ${ip}`)
+    lines.push(`${ip} ${domainName}`)
     wholeInfoLines.push(`# { ${domainName}`)
     wholeInfoLines.push(ipList.join(LINE_BREAK))
     wholeInfoLines.push('# }')
