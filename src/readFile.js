@@ -21,14 +21,19 @@ module.exports = (path) => {
     console.error('Failed to read file', path, ex)
   }
 
-  let arr = content.split(/[\r\n]/)
-  arr = arr.filter((item) => {
+  const arr = content.split(/[\r\n]/)
+  const domainList = []
+  arr.forEach((item) => {
     let lineContent = item || ''
     lineContent = lineContent.trim()
     // use # as comment
-    return lineContent.length > 0 && /^#/.test(lineContent) === false
+    if (lineContent.length > 0 &&
+        /^#/.test(lineContent) === false &&
+        domainList.indexOf(lineContent) === -1) {
+      domainList.push(lineContent)
+    }
   })
 
-  return arr
+  return domainList
 }
 
