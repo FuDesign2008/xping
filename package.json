@@ -21,6 +21,11 @@
   "homepage": "https://github.com/FuDesign2008/xping#readme",
   "dependencies": {
     "lodash": "^4.17.4",
-    "phantom": "^4.0.5"
+    "phantom": "^4.0.5",
+    "ping": "^0.2.2"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb": "^16.0.0",
+    "webpack": "^3.7.1"
   }
 }

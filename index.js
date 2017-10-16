@@ -1,73 +1,56 @@
+const _ = require('lodash')
+const path = require('path')
+const fs = require('fs')
+const readFile = require('./src/readFile')
+const fetchPing = require('./src/fetchPing')
+const writeAsHosts = require('./src/writeAsHosts')
 
-const _ = require('lodash');
-const path = require('path');
-const fs = require('fs');
-const readFile = require('./src/readFile');
-const fetchPing = require('./src/fetchPing');
-const writeAsHosts = require('./src/writeAsHosts');
 
-
-console.log(process.argv);
-let args = process.argv.slice(2);
-let configName = _.first(args);
+console.log('progress argv', process.argv)
+const args = process.argv.slice(2)
+const configName = _.first(args)
 
 if (!configName) {
-  console.error('no config name, arguments are not valid', args);
-  return;
+  console.error('no config name, arguments are not valid', args)
+  process.exit(0)
 }
 
-const configPathFromConfig = path.join(__dirname, './src/domain-config/', configName + '.txt');
-const configPathFromCurrent = path.join(__dirname, configName + '.txt');
-let configPath = '';
+const configPathFromConfig = path.resolve(__dirname, './src/domain-config/', `${configName}.conf`)
+const configPathFromCurrent = path.join(__dirname, `${configName}.conf`)
+let configPath = ''
 
-console.log('"' + configPathFromCurrent + '"', '"' + configPathFromConfig + '"');
+console.log('path from current/config', configPathFromCurrent, configPathFromConfig)
 
 if (fs.existsSync(configPathFromConfig)) {
-  configPath = configPathFromConfig;
+  configPath = configPathFromConfig
 } else if (fs.exists(configPathFromCurrent)) {
-  configPath = configPathFromCurrent;
+  configPath = configPathFromCurrent
 }
 
-const domainNames = readFile(configPath);
+const domainNames = readFile(configPath)
 if (!domainNames || !domainNames.length) {
-  console.error('no domain names', domainNames);
+  console.error('no domain names', domainNames)
 }
+
+console.log('domain names', domainNames)
 
 const data = {
-  configName: configName,
+  configName,
   pings: {}
-};
+}
 
-let count = 0;
-let resultCount = 0;
-
-_.each(domainNames, function (domain) {
-  count++;
-  fetchPing(domain, function (ipList) {
-    resultCount++;
+// eslint-disable-next-line
+const promiseList = _.map(domainNames, (domain) => {
+  return fetchPing(domain).then((ipList) => {
+    console.log('fetchPing', ipList)
     if (ipList && ipList.length) {
-      data.pings[domain] = ipList;
+      data.pings[domain] = ipList
     }
-  });
-});
+  })
+})
 
-const writeFiles = function () {
-  if (resultCount >= count) {
-    writeAsHosts(data, __dirname);
-  } else {
-    setTimeout(writeFiles, 1000);
-  }
-};
-
-writeFiles();
-
-
-
-
-
-
-
-
-
-
-
+Promise.all(promiseList).then(() => {
+  console.log(data)
+  writeAsHosts(data, __dirname)
+  process.exit(0)
+})
