@@ -4,6 +4,7 @@ const fs = require('fs')
 const readFile = require('./src/readFile')
 const fetchPing = require('./src/fetchPing')
 const writeAsHosts = require('./src/writeAsHosts')
+const ping = require('./src/ping')
 
 
 console.log('progress argv', process.argv)
@@ -51,6 +52,9 @@ const promiseList = _.map(domainNames, (domain) => {
 
 Promise.all(promiseList).then(() => {
   console.log(data)
-  writeAsHosts(data, __dirname)
-  process.exit(0)
+  ping(data.pings).then((result) => {
+    console.log(result)
+    writeAsHosts(data.configName, result, __dirname)
+    process.exit(0)
+  })
 })

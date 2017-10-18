@@ -6,32 +6,45 @@ const LINE_BREAK = '\n'
 
 /**
  *
- * @param {String} data.configName
- * @param {Object} data.pings  - key is domain name, value is an array of ip
+ * @param {String} configName
+ * @param {Object} data  - key is domain name, value is an array of ip
  */
-module.exports = (data, directoryPath) => {
-  if (!data || !data.configName || !data.pings) {
-    console.warn('No pings', data)
+module.exports = (configName, data, directoryPath) => {
+  if (!configName || !data) {
+    console.warn('No pings', configName, data)
     return
   }
 
-  const lines = [`# { ${data.configName}`]
-  const wholeInfoLines = []
+  const now = new Date()
+  const nowStr = now.toString()
+  const lines = [`# { ${configName} ${nowStr}`]
+  lines.push('')
+  const domainNames = _.keys(data)
+  domainNames.sort()
 
-  _.forEach(data.pings, (ipList, domainName) => {
-    const ip = _.first(ipList)
-    lines.push(`${ip} ${domainName}`)
-    wholeInfoLines.push(`# { ${domainName}`)
-    wholeInfoLines.push(ipList.join(LINE_BREAK))
-    wholeInfoLines.push('# }')
+  _.forEach(domainNames, (domainName) => {
+    const ipInfo = data[domainName]
+    let isFirst = true
+    _.forEach(ipInfo, (isAlive, ip) => {
+      if (isAlive) {
+        if (isFirst) {
+          lines.push(`${ip} ${domainName}`)
+          isFirst = false
+        } else {
+          lines.push(`# ${ip} ${domainName}`)
+        }
+      } else {
+        lines.push(`# ${ip} ${domainName} # off`)
+      }
+    })
+    lines.push('')
   })
 
+  lines.push('')
   lines.push('# }')
-  const hostFilePath = path.join(directoryPath, `host-${data.configName}.txt`)
-  // const wholeInfoFilePath = path.join(directoryPath, `${data.configName}-all.text`)
+  const hostFilePath = path.join(directoryPath, `host-${configName}.txt`)
 
   fs.writeFileSync(hostFilePath, lines.join(LINE_BREAK))
-  // fs.writeFileSync(wholeInfoFilePath, wholeInfoLines.join(LINE_BREAK))
   console.log('write as host ok')
 }
 
