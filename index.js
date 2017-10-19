@@ -42,11 +42,9 @@ const data = {
 
 // eslint-disable-next-line
 const promiseList = _.map(domainNames, (domain) => {
-  return fetchPing(domain).then((ipList) => {
-    console.log('fetchPing', ipList)
-    if (ipList && ipList.length) {
-      data.pings[domain] = ipList
-    }
+  return fetchPing(domain).then((ipInfoMap) => {
+    console.log('fetchPing', ipInfoMap)
+    data.pings[domain] = ipInfoMap
   })
 })
 

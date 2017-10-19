@@ -1,6 +1,7 @@
 const phantom = require('phantom')
-const ping = require('ping')
 const _ = require('lodash')
+
+const isDebugMode = false
 
 /**
  * @param {String} domain
@@ -32,13 +33,29 @@ module.exports = function fetchPing(domain) {
           return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip)
         }
 
-        const validIPList = []
+        const validIPMap = {}
         let parseTimeoutId = null
 
         function parsePingResponse() {
           // eslint-disable-next-line
           page.evaluate(function() {
             /* eslint-disable */
+            function _isValidIP(ip) {
+              return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip)
+            }
+
+            function _isUnvalidContent(str) {
+              str = str || ''
+
+              if (str.indexOf('超时') > -1) {
+                return true
+              }
+
+              str = str.trim()
+              str = str.replace(/-/g, '')
+              return str.length === 0
+            }
+
             function parseResponseLi(li) {
               if (!li || !li.querySelector) {
                 return
@@ -53,36 +70,44 @@ module.exports = function fetchPing(domain) {
 
               var keys = Object.keys(map)
               var response = {}
-              keys.forEach(function (key) {
+              var maxTime = 100000
+              var isUnvalid = keys.some(function (key) {
                 var selector = map[key]
                 var el = li.querySelector(selector)
                 var text = ''
                 if (el) {
                   text = el.innerText
                 }
+                if (_isUnvalidContent(text)) {
+                  return true
+                }
                 response[key] = text.trim()
               })
+
+              if (isUnvalid) {
+                return
+              }
 
               if (response.time && /^\d+ms$/.test(response.time)) {
                 response.time = parseInt(response.time, 10)
               } else {
-                response.time = -1
+                response.time = maxTime
               }
 
               if (response.ttl && /^\d+$/.test(response.ttl)) {
                 response.ttl = parseInt(response.ttl, 10)
               } else {
-                response.ttl = -1
+                response.ttl = maxTime
               }
               return response
             }
 
             var ul = document.getElementById('speedlist')
-            var ipList = []
+            var ipInfoList = []
 
             if (!ul) {
               return {
-                  ipList: ipList,
+                  ipInfoList: ipInfoList,
                   message: 'no ul'
               }
             }
@@ -102,35 +127,36 @@ module.exports = function fetchPing(domain) {
               if (id) {
                 liInfo = parseResponseLi(theLi)
                 message.push(window.JSON.stringify(liInfo))
-                if (liInfo && liInfo.time > 0 && liInfo.ip &&
-                    liInfo.city && liInfo.city.indexOf('海外') > -1) {
-                  ipList.push(liInfo.ip)
+                if (liInfo && _isValidIP(liInfo.ip) && liInfo.city) {
+                  ipInfoList.push(liInfo)
                 }
               }
             }
 
             var uniqueIpList = []
-            ipList.forEach(function (ip) {
-              if (uniqueIpList.indexOf(ip) === -1) {
-                uniqueIpList.push(ip)
+            var uniqueIpInfoList = []
+            ipInfoList.forEach(function (ipInfo) {
+              if (uniqueIpList.indexOf(ipInfo.ip) === -1) {
+                uniqueIpList.push(ipInfo.ip)
+                uniqueIpInfoList.push(ipInfo)
               }
             })
 
             return {
-              ipList: uniqueIpList,
+              ipInfoList: uniqueIpInfoList,
               message: message.join('\n')
             }
             /* eslint-enable */
           }).then((data) => {
-            // console.log('ipList', data)
-            _.forEach(data.ipList, (ip) => {
-              console.log('for each ip', ip)
-              if (isValidIP(ip) && validIPList.indexOf(ip) === -1) {
-                validIPList.push(ip)
+            console.log('ipInfoList', data)
+            _.forEach(data.ipInfoList, (ipInfo) => {
+              console.log('for each ip', ipInfo)
+              if (isValidIP(ipInfo.ip) && !validIPMap[ipInfo.ip]) {
+                validIPMap[ipInfo.ip] = ipInfo
               }
             })
 
-            resolve(validIPList)
+            resolve(validIPMap)
             page.off('onResourceReceived')
             page.close()
           })
@@ -149,28 +175,20 @@ module.exports = function fetchPing(domain) {
           if (isPingResponse(response)) {
             pingCount += 1
             console.log(`on receive ping ${domain}`, pingCount)
-            clearTimeout(parseTimeoutId)
-            parseTimeoutId = setTimeout(parsePingResponse, 1000 * 10)
+            if (isDebugMode) {
+              if (pingCount < 10) {
+                clearTimeout(parseTimeoutId)
+                parseTimeoutId = setTimeout(parsePingResponse, 1000 * 5)
+              }
+            } else {
+              clearTimeout(parseTimeoutId)
+              parseTimeoutId = setTimeout(parsePingResponse, 1000 * 20)
+            }
           }
         })
         const url = `http://ping.chinaz.com/${domain}`
-        const setting = {
-          operation: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          data: JSON.stringify({
-            host: domain,
-            linetype: '海外'
-          })
-        }
-
         console.log('to open url', url)
-        // eslint-disable-next-line
-        page.open(url, setting, function (status) {
-          console.log('open url status', status)
-        })
-        // page.open(url)
+        page.open(url)
       }).catch((error) => {
         console.log('error =>', error)
         ph.exit()

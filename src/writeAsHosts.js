@@ -21,20 +21,41 @@ module.exports = (configName, data, directoryPath) => {
   lines.push('')
   const domainNames = _.keys(data)
   domainNames.sort()
+  const sortedData = {}
 
   _.forEach(domainNames, (domainName) => {
-    const ipInfo = data[domainName]
+    const ipInfoMap = data[domainName]
+    if (!sortedData[domainName]) {
+      sortedData[domainName] = []
+    }
+    _.each(ipInfoMap, (ipInfo) => {
+      sortedData[domainName].push(ipInfo)
+    })
+  })
+
+  _.forEach(domainNames, (domainName) => {
+    const ipInfoList = sortedData[domainName]
+    ipInfoList.sort((a, b) => (a.time - b.time))
     let isFirst = true
-    _.forEach(ipInfo, (isAlive, ip) => {
-      if (isAlive) {
+    _.forEach(ipInfoList, (ipInfo) => {
+      let aliveMessage
+      let timeMessage
+      if (ipInfo.isAlive && ipInfo.time < 10000) {
+        aliveMessage = 'on'
         if (isFirst) {
-          lines.push(`${ip} ${domainName}`)
+          lines.push(`${ipInfo.ip} ${domainName} # ${aliveMessage} ${ipInfo.city} -- ${ipInfo.time} --> ${ipInfo.ipAddress}`)
           isFirst = false
         } else {
-          lines.push(`# ${ip} ${domainName}`)
+          lines.push(`# ${ipInfo.ip} ${domainName} # ${aliveMessage} ${ipInfo.city} -- ${ipInfo.time} --> ${ipInfo.ipAddress}`)
         }
       } else {
-        lines.push(`# ${ip} ${domainName} # off`)
+        aliveMessage = 'off'
+        if (ipInfo.time < 10000) {
+          timeMessage = ipInfo.time
+        } else {
+          timeMessage = '超时'
+        }
+        lines.push(`# ${ipInfo.ip} ${domainName} # ${aliveMessage} ${ipInfo.city} -- ${timeMessage} --> ${ipInfo.ipAddress}`)
       }
     })
     lines.push('')
