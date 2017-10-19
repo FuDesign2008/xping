@@ -63,7 +63,7 @@ module.exports = (configName, data, directoryPath) => {
 
   lines.push('')
   lines.push('# }')
-  const hostFilePath = path.join(directoryPath, `host-${configName}.txt`)
+  const hostFilePath = path.join(directoryPath, `host-${configName}.conf`)
 
   fs.writeFileSync(hostFilePath, lines.join(LINE_BREAK))
   console.log('write as host ok')

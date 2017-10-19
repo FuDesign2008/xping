@@ -88,6 +88,11 @@ module.exports = function fetchPing(domain) {
                 return
               }
 
+              // <1ms  -->  1ms
+              if (response.time && /^</.test(response.time)) {
+                response.time = response.time.substring(1)
+              }
+
               if (response.time && /^\d+ms$/.test(response.time)) {
                 response.time = parseInt(response.time, 10)
               } else {
