@@ -30,7 +30,10 @@ module.exports = function fetchPing(domain) {
         }
 
         function isValidIP(ip) {
-          return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip)
+          return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip) && ([
+            // unvalid ip list
+            '127.0.0.1'
+          ]).indexOf(ip) === -1
         }
 
         const validIPMap = {}
@@ -41,7 +44,10 @@ module.exports = function fetchPing(domain) {
           page.evaluate(function() {
             /* eslint-disable */
             function _isValidIP(ip) {
-              return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip)
+              return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(ip) && ([
+                // unvalid ip list
+                '127.0.0.1'
+              ]).indexOf(ip) === -1
             }
 
             function _isUnvalidContent(str) {
