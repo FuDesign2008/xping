@@ -24,7 +24,7 @@ console.log('path from current/config', configPathFromCurrent, configPathFromCon
 
 if (fs.existsSync(configPathFromConfig)) {
   configPath = configPathFromConfig
-} else if (fs.exists(configPathFromCurrent)) {
+} else if (fs.existsSync(configPathFromCurrent)) {
   configPath = configPathFromCurrent
 }
 
