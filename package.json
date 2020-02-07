@@ -22,6 +22,7 @@
   "dependencies": {
     "lodash": "^4.17.4",
     "phantom": "^4.0.5",
+    "phantomjs-prebuilt": "^2.1.16",
     "ping": "^0.2.2"
   },
   "devDependencies": {
